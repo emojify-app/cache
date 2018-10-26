@@ -1,4 +1,4 @@
-package cache
+package storage
 
 import (
 	"io/ioutil"
@@ -8,12 +8,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func setupFileCache() Cache {
-	return NewFileCache("/tmp/")
+func setupFileStore() Store {
+	return NewFileStore("/tmp/")
 }
 
 func TestPutSavesFile(t *testing.T) {
-	c := setupFileCache()
+	c := setupFileStore()
 
 	c.Put("abc", []byte("abc1223"))
 	fileKey := "abc"
@@ -37,7 +37,7 @@ func TestPutSavesFile(t *testing.T) {
 }
 
 func TestExistsWithNoFileReturnsFalse(t *testing.T) {
-	c := setupFileCache()
+	c := setupFileStore()
 
 	ok, err := c.Exists("abcdefg")
 	if err != nil {

@@ -10,9 +10,9 @@ import (
 
 	"github.com/DATA-DOG/godog"
 	"github.com/DATA-DOG/godog/colors"
-	cacheHandler "github.com/emojify-app/cache/cache"
 	"github.com/emojify-app/cache/protos/cache"
 	"github.com/emojify-app/cache/server"
+	"github.com/emojify-app/cache/storage"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/grpc"
 )
@@ -44,7 +44,7 @@ func TestMain(m *testing.M) {
 }
 
 func theServerIsRunning() error {
-	c := cacheHandler.NewFileCache("/tmp/cache/")
+	c := storage.NewFileStore("/tmp/cache/")
 
 	var err error
 	go func() {

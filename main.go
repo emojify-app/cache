@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	cacheHandler "github.com/emojify-app/cache/cache"
 	"github.com/emojify-app/cache/server"
+	"github.com/emojify-app/cache/storage"
 	hclog "github.com/hashicorp/go-hclog"
 )
 
@@ -29,9 +29,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	var c cacheHandler.Cache
+	var c storage.Store
 	if envCacheType == "file" {
-		c = cacheHandler.NewFileCache(envCacheFileLocation)
+		c = storage.NewFileStore(envCacheFileLocation)
 	}
 
 	logger.Info("Binding to", "address", envBindAddress, "port", envBindPort)

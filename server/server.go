@@ -4,17 +4,19 @@ import (
 	"fmt"
 	"net"
 
-	cacheHandler "github.com/emojify-app/cache/cache"
 	"github.com/emojify-app/cache/protos/cache"
+	"github.com/emojify-app/cache/storage"
 	"google.golang.org/grpc"
 )
 
 var lis net.Listener
-var grpcServer = grpc.NewServer()
+
+var grpcServer *grpc.Server
 
 // Start a new instance of the server
-func Start(address, port string, handler cacheHandler.Cache) error {
-	cache.RegisterCacheServer(grpcServer, &CacheServer{handler})
+func Start(address, port string, store storage.Store) error {
+	grpcServer = grpc.NewServer()
+	cache.RegisterCacheServer(grpcServer, &CacheServer{store})
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%s", address, port))
 	if err != nil {

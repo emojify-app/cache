@@ -1,17 +1,17 @@
-package cache
+package storage
 
 import (
 	"io/ioutil"
 	"os"
 )
 
-// FileCache implements the Cache interface using the local filesystem
-type FileCache struct {
+// FileStore implements the Cache interface using the local filesystem
+type FileStore struct {
 	path string
 }
 
-// NewFileCache creates a file based cache
-func NewFileCache(path string) Cache {
+// NewFileStore creates a file based cache
+func NewFileStore(path string) Store {
 	_, err := os.Open(path)
 	if err != nil {
 		err := os.MkdirAll(path, 0755)
@@ -20,11 +20,11 @@ func NewFileCache(path string) Cache {
 		}
 	}
 
-	return &FileCache{path}
+	return &FileStore{path}
 }
 
 // Exists checks to see if a file
-func (r *FileCache) Exists(key string) (bool, error) {
+func (r *FileStore) Exists(key string) (bool, error) {
 	_, err := os.Open(r.path + key)
 	if os.IsNotExist(err) {
 		return false, nil
@@ -34,7 +34,7 @@ func (r *FileCache) Exists(key string) (bool, error) {
 }
 
 // Get an image from the File store
-func (r *FileCache) Get(key string) ([]byte, error) {
+func (r *FileStore) Get(key string) ([]byte, error) {
 	f, err := os.Open(r.path + key)
 	if err != nil {
 		return nil, err
@@ -44,7 +44,7 @@ func (r *FileCache) Get(key string) ([]byte, error) {
 }
 
 // Put an image to the File store
-func (r *FileCache) Put(key string, data []byte) error {
+func (r *FileStore) Put(key string, data []byte) error {
 	f, err := os.Create(r.path + key)
 	if err != nil {
 		return err
