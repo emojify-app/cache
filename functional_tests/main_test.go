@@ -19,7 +19,7 @@ import (
 
 var opt = godog.Options{Output: colors.Colored(os.Stdout)}
 var bindAddress = "127.0.0.1"
-var bindPort = "9000"
+var bindPort = 9000
 
 var cacheClient cache.CacheClient
 var putReturn string
@@ -55,7 +55,7 @@ func theServerIsRunning() error {
 	}()
 	time.Sleep(1000 * time.Millisecond)
 
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", bindAddress, bindPort), grpc.WithInsecure())
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", bindAddress, bindPort), grpc.WithInsecure())
 	if err != nil {
 		return err
 	}

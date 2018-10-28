@@ -62,6 +62,8 @@ github.com/mitchellh/mapstructure v1.1.2 h1:fmNYVwqnSfB9mZU6OS2O6GsXM+wcskZDuKQz
 github.com/mitchellh/mapstructure v1.1.2/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh9fWfEaFds41c1Y=
 github.com/mitchellh/reflectwalk v1.0.0 h1:9D+8oIskB4VJBN5SFlmc27fSlIBZaov1Wpk/IfikLNY=
 github.com/mitchellh/reflectwalk v1.0.0/go.mod h1:mSTlrgnPZtwu0c4WaC2kGObEpuNDbx0jmZXqmk4esnw=
+github.com/nicholasjackson/env v0.0.0-20181027163906-d396ca9cf84b h1:b1j+gHXfe++uF4cRnohZQFF454JoBJEQgj6C5V+TkAY=
+github.com/nicholasjackson/env v0.0.0-20181027163906-d396ca9cf84b/go.mod h1:4QrolVFuqgTLjz3F52pRw3kE0MKlKAC51f4xPecR9VY=
 github.com/nicholasjackson/grpc-consul-resolver v0.0.0-20180816190122-9e77ef8c119c h1:/up0azRK+oITqT6IrccXAJTeWZRAW2BJ75SxDOoRHgE=
 github.com/nicholasjackson/grpc-consul-resolver v0.0.0-20180816190122-9e77ef8c119c/go.mod h1:ol4ONrzjLg8+vCp3+GEYKW0eAaTBTiFX+6ilIqYYTdA=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

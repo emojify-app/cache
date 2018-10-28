@@ -25,6 +25,7 @@ require (
 	github.com/mitchellh/go-testing-interface v1.0.0 // indirect
 	github.com/mitchellh/hashstructure v1.0.0 // indirect
 	github.com/mitchellh/mapstructure v1.1.2 // indirect
+	github.com/nicholasjackson/env v0.0.0-20181027163906-d396ca9cf84b
 	github.com/nicholasjackson/grpc-consul-resolver v0.0.0-20180816190122-9e77ef8c119c // indirect
 	github.com/sean-/seed v0.0.0-20170313163322-e2103e2c3529 // indirect
 	github.com/stretchr/objx v0.1.1 // indirect

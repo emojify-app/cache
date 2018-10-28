@@ -14,11 +14,11 @@ var lis net.Listener
 var grpcServer *grpc.Server
 
 // Start a new instance of the server
-func Start(address, port string, store storage.Store) error {
+func Start(address string, port int, store storage.Store) error {
 	grpcServer = grpc.NewServer()
 	cache.RegisterCacheServer(grpcServer, &CacheServer{store})
 
-	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%s", address, port))
+	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", address, port))
 	if err != nil {
 		return err
 	}
