@@ -7,8 +7,12 @@ build_snapshot: build_protos
 test: test_unit test_functional
 
 test_unit:
-	go test -v -race `go list ./... | grep -v functional_tests`
+	@echo "Execute unit tests"
+	@go test -v -race `go list ./... | grep -v functional_tests`
+	@echo ""
 
 test_functional:
-	cd functional_tests && go test -v --godog.format=pretty --godog.random -race
+	@echo "Execute functional tests"
+	@cd functional_tests && go test -v --godog.format=pretty --godog.random -race
+	@echo ""
 	

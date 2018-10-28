@@ -10,5 +10,6 @@ message CacheItem {
 service Cache {
   rpc Put(CacheItem) returns (google.protobuf.StringValue) {}
   rpc Get(google.protobuf.StringValue) returns (CacheItem) {}
+  rpc Exists(google.protobuf.StringValue) returns (google.protobuf.BoolValue) {}
 }
 

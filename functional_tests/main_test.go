@@ -24,6 +24,9 @@ var bindPort = "9000"
 var cacheClient cache.CacheClient
 var putReturn string
 var getBody string
+var existsReturn bool
+
+var fileURI = "http://localhost:9191/a/b/c.jpg"
 
 func init() {
 	godog.BindFlags("godog.", flag.CommandLine, &opt)
@@ -62,7 +65,7 @@ func theServerIsRunning() error {
 }
 
 func iPutAFile() error {
-	resp, err := cacheClient.Put(context.Background(), &cache.CacheItem{Id: "123", Data: []byte("abc")})
+	resp, err := cacheClient.Put(context.Background(), &cache.CacheItem{Id: fileURI, Data: []byte("abc")})
 	if err != nil {
 		return err
 	}
@@ -86,7 +89,8 @@ func theFileShouldExistInTheCache() error {
 }
 
 func aFileExistsInTheCache() error {
-	f, err := os.OpenFile("/tmp/cache/abcdefg", os.O_RDWR|os.O_CREATE, 0755)
+	encodedID := storage.HashFilename(fileURI)
+	f, err := os.OpenFile("/tmp/cache/"+encodedID, os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
 		return err
 	}
@@ -96,7 +100,9 @@ func aFileExistsInTheCache() error {
 }
 
 func iGetThatFile() error {
-	ci, err := cacheClient.Get(context.Background(), &wrappers.StringValue{Value: "abcdefg"})
+	encodedID := storage.HashFilename(fileURI)
+
+	ci, err := cacheClient.Get(context.Background(), &wrappers.StringValue{Value: encodedID})
 	if err != nil {
 		return err
 	}
@@ -109,6 +115,25 @@ func iGetThatFile() error {
 func theFileContentsShouldBeReturned() error {
 	if getBody != "abc" {
 		return fmt.Errorf("expected file contents: abc, got: %s", getBody)
+	}
+
+	return nil
+}
+
+func iCallExists() error {
+	exists, err := cacheClient.Exists(context.Background(), &wrappers.StringValue{Value: fileURI})
+	if err != nil {
+		return err
+	}
+
+	existsReturn = exists.Value
+
+	return nil
+}
+
+func theResponseShouldBeTrue() error {
+	if !existsReturn {
+		return fmt.Errorf("Exists should have returned true")
 	}
 
 	return nil
@@ -130,4 +155,6 @@ func FeatureContext(s *godog.Suite) {
 	s.Step(`^a file exists in the cache$`, aFileExistsInTheCache)
 	s.Step(`^I Get that file`, iGetThatFile)
 	s.Step(`^the file contents should be returned`, theFileContentsShouldBeReturned)
+	s.Step(`^I call exists$`, iCallExists)
+	s.Step(`^the response should be true$`, theResponseShouldBeTrue)
 }
