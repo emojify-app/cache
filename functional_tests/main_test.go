@@ -100,9 +100,7 @@ func aFileExistsInTheCache() error {
 }
 
 func iGetThatFile() error {
-	encodedID := storage.HashFilename(fileURI)
-
-	ci, err := cacheClient.Get(context.Background(), &wrappers.StringValue{Value: encodedID})
+	ci, err := cacheClient.Get(context.Background(), &wrappers.StringValue{Value: fileURI})
 	if err != nil {
 		return err
 	}

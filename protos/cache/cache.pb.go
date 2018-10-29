@@ -3,12 +3,12 @@
 
 package cache
 
-import (
-	fmt "fmt"
-	math "math"
+import proto "github.com/golang/protobuf/proto"
+import fmt "fmt"
+import math "math"
+import wrappers "github.com/golang/protobuf/ptypes/wrappers"
 
-	proto "github.com/golang/protobuf/proto"
-	wrappers "github.com/golang/protobuf/ptypes/wrappers"
+import (
 	context "golang.org/x/net/context"
 	grpc "google.golang.org/grpc"
 )
@@ -96,7 +96,6 @@ type cacheClient struct {
 }
 
 func NewCacheClient(cc *grpc.ClientConn) CacheClient {
-
 	return &cacheClient{cc}
 }
 

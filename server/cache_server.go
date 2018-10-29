@@ -15,7 +15,9 @@ type CacheServer struct {
 
 // Get an item from the cache
 func (c *CacheServer) Get(ctx context.Context, key *wrappers.StringValue) (*cache.CacheItem, error) {
-	data, err := c.store.Get(key.Value)
+	encodedID := storage.HashFilename(key.Value)
+
+	data, err := c.store.Get(encodedID)
 	if err != nil {
 		return &cache.CacheItem{}, err
 	}
