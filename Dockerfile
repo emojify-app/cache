@@ -1,5 +1,5 @@
 FROM scratch
 
-COPY cache /
+COPY emojify-cache /
 
-ENTRYPOINT ["/cache"]
+ENTRYPOINT ["/emojify-cache"]

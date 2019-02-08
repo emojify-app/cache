@@ -1,35 +1,23 @@
 ---
 builds:
-  -
-    env:
-      - CGO_ENABLED=0
-    binary: cache
-    ldflags:
-      - -s -w -X main.version={{.Version}}
-
-archive:
-  replacements:
-    darwin: Darwin
-    linux: Linux
-    windows: Windows
-    386: i386
-    amd64: x86_64
-
-snapshot:
-  name_template: "{{ .Tag }}"
+- ldflags:
+  - -s -w -X "main.version={{.Version}}"
+  binary: emojify-cache
+  goos:
+  - linux
+  goarch:
+  - amd64
+  env:
+  - CGO_ENABLED=0
 
 dockers:
-  -
-    goos: linux
-    dockerfile: Dockerfile
-    binary: cache
-    image_templates:
-      - "nicholasjackson/emojify-cache:latest"
-      - "nicholasjackson/emojify-cache:{{.Version}}"
-
-changelog:
-  sort: asc
-  filters:
-    exclude:
-      - '^docs:'
-      - '^test:'
+-
+  binaries:
+    - emojify-cache
+  goos: linux
+  goarch: amd64
+  dockerfile: Dockerfile
+  image_templates:
+  - "nicholasjackson/emojify-cache:latest"
+  - "nicholasjackson/emojify-cache:{{.Tag}}"
+  - "nicholasjackson/emojify-cache:{{.Commit}}"
