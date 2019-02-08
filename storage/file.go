@@ -52,6 +52,11 @@ func (r *FileStore) Exists(key string) (bool, error) {
 func (r *FileStore) Get(key string) ([]byte, error) {
 	f, err := os.Open(r.path + key)
 	if err != nil {
+		// if the file does not exist return a nil slice
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+
 		return nil, err
 	}
 

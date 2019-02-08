@@ -10,6 +10,7 @@ import (
 
 	"github.com/DATA-DOG/godog"
 	"github.com/DATA-DOG/godog/colors"
+	"github.com/emojify-app/cache/logging"
 	"github.com/emojify-app/cache/protos/cache"
 	"github.com/emojify-app/cache/server"
 	"github.com/emojify-app/cache/storage"
@@ -48,10 +49,11 @@ func TestMain(m *testing.M) {
 
 func theServerIsRunning() error {
 	c := storage.NewFileStore("/tmp/cache/", 5*time.Minute)
+	l, _ := logging.New("test", "test", "localhost:8125", "DEBUG", "text")
 
 	var err error
 	go func() {
-		err = server.Start(bindAddress, bindPort, c)
+		err = server.Start(bindAddress, bindPort, l, c)
 	}()
 	time.Sleep(1000 * time.Millisecond)
 

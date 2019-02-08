@@ -2,6 +2,7 @@ module github.com/emojify-app/cache
 
 require (
 	github.com/DATA-DOG/godog v0.7.9
+	github.com/DataDog/datadog-go v0.0.0-20180822151419-281ae9f2d895
 	github.com/go-redis/redis v6.15.1+incompatible
 	github.com/golang/protobuf v1.2.0
 	github.com/hashicorp/go-hclog v0.0.0-20190109152822-4783caec6f2e
