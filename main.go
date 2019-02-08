@@ -20,6 +20,7 @@ var envHealthBindPort = env.Integer("HEALTH_BIND_PORT", false, 9091, "Bind port 
 
 var envCacheType = env.String("CACHE_TYPE", false, "file", "Cache type for server e.g. file, cloud_storage")
 var envCacheFileLocation = env.String("CACHE_FILE_LOCATION", false, "/files", "Directory to store files for cache type file")
+var envCacheInvalidation = env.Duration("CACHE_INVALIDATION", false, "5m", "Cache invalidation period")
 
 var logger hclog.Logger
 
@@ -49,7 +50,7 @@ func main() {
 
 	var c storage.Store
 	if *envCacheType == "file" {
-		c = storage.NewFileStore(*envCacheFileLocation)
+		c = storage.NewFileStore(*envCacheFileLocation, *envCacheInvalidation)
 	}
 
 	logger.Info("Binding health checks to", "address", *envBindAddress, "port", *envBindPort)

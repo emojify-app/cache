@@ -47,7 +47,7 @@ func TestMain(m *testing.M) {
 }
 
 func theServerIsRunning() error {
-	c := storage.NewFileStore("/tmp/cache/")
+	c := storage.NewFileStore("/tmp/cache/", 5*time.Minute)
 
 	var err error
 	go func() {

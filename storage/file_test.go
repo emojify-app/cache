@@ -4,28 +4,32 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func setupFileStore() Store {
-	return NewFileStore("/tmp/")
+var tmpDirectory = "/tmp/cache_test"
+
+func setupFileStore(invalidation time.Duration) Store {
+	os.Mkdir(tmpDirectory, 0755)
+	return NewFileStore(tmpDirectory, invalidation)
 }
 
 func TestPutSavesFile(t *testing.T) {
-	c := setupFileStore()
+	c := setupFileStore(1 * time.Second)
 
 	c.Put("abc", []byte("abc1223"))
 	fileKey := "abc"
 
-	file, err := os.Open("/tmp/" + fileKey)
+	file, err := os.Open(tmpDirectory + "/" + fileKey)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer file.Close()
 
 	defer func() {
-		os.Remove("/tmp/" + fileKey)
+		os.Remove(tmpDirectory + "/" + fileKey)
 	}()
 
 	data, err := ioutil.ReadAll(file)
@@ -37,7 +41,7 @@ func TestPutSavesFile(t *testing.T) {
 }
 
 func TestExistsWithNoFileReturnsFalse(t *testing.T) {
-	c := setupFileStore()
+	c := setupFileStore(1 * time.Second)
 
 	ok, err := c.Exists("abcdefg")
 	if err != nil {
@@ -45,4 +49,24 @@ func TestExistsWithNoFileReturnsFalse(t *testing.T) {
 	}
 
 	assert.False(t, ok)
+}
+
+func TestRemovesCachedFile(t *testing.T) {
+	c := setupFileStore(10 * time.Millisecond)
+
+	c.Put("abc", []byte("abc1223"))
+	fileKey := "abc"
+
+	st := time.Now()
+	for {
+		if time.Now().Sub(st) > 20*time.Millisecond {
+			t.Fatal("Timeout before cache invalidation")
+		}
+
+		_, err := os.Open(tmpDirectory + "/" + fileKey)
+		ex := os.IsNotExist(err)
+		if ex {
+			break
+		}
+	}
 }
