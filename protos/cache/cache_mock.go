@@ -9,7 +9,7 @@ import (
 
 // ClientMock is a mock implementation of the gRCP cache client
 type ClientMock struct {
-	Mock mock.Mock
+	mock.Mock
 }
 
 // Put is a mock implementation of the cache put interface

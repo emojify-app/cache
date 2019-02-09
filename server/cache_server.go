@@ -8,6 +8,8 @@ import (
 	"github.com/emojify-app/cache/protos/cache"
 	"github.com/emojify-app/cache/storage"
 	"github.com/golang/protobuf/ptypes/wrappers"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 // CacheServer implements the methofds defined in the gRPC interface
@@ -25,12 +27,18 @@ func (c *CacheServer) Get(ctx context.Context, key *wrappers.StringValue) (*cach
 	data, err := c.store.Get(encodedID)
 	if err != nil {
 		f(http.StatusInternalServerError, err)
-		return &cache.CacheItem{}, err
+
+		// create a grpc error message
+		gerr := status.New(codes.Internal, err.Error())
+		return nil, gerr.Err()
 	}
 
 	// does the file exist?
 	if data == nil || len(data) == 0 {
 		c.logger.CacheFileNotFound(key.Value)
+
+		gerr := status.New(codes.NotFound, "File not found: "+key.Value)
+		return nil, gerr.Err()
 	}
 
 	f(http.StatusOK, nil)
@@ -46,10 +54,13 @@ func (c *CacheServer) Put(ctx context.Context, item *cache.CacheItem) (*wrappers
 	err := c.store.Put(encodedID, item.GetData())
 	if err != nil {
 		f(http.StatusInternalServerError, err)
+
+		gerr := status.New(codes.Internal, err.Error())
+		return nil, gerr.Err()
 	}
 
 	f(http.StatusOK, nil)
-	return &wrappers.StringValue{Value: encodedID}, err
+	return &wrappers.StringValue{Value: encodedID}, nil
 }
 
 // Exists checks to see if an item already exists in the cache
@@ -58,7 +69,8 @@ func (c *CacheServer) Exists(ctx context.Context, key *wrappers.StringValue) (*w
 
 	exists, err := c.store.Exists(encodedID)
 	if err != nil {
-		return &wrappers.BoolValue{Value: false}, err
+		gerr := status.New(codes.Internal, err.Error())
+		return nil, gerr.Err()
 	}
 
 	return &wrappers.BoolValue{Value: exists}, nil
