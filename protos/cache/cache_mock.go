@@ -20,7 +20,7 @@ func (c *ClientMock) Put(ctx context.Context, in *CacheItem, opts ...grpc.CallOp
 		return sv.(*wrappers.StringValue), args.Error(1)
 	}
 
-	return nil, args.Error(0)
+	return nil, args.Error(1)
 }
 
 // Get is a mock implementation of the cache get interface
@@ -31,7 +31,7 @@ func (c *ClientMock) Get(ctx context.Context, in *wrappers.StringValue, opts ...
 		return sv.(*CacheItem), args.Error(1)
 	}
 
-	return nil, args.Error(0)
+	return nil, args.Error(1)
 }
 
 // Exists is a mock implementation of the cache exists interface
@@ -42,5 +42,5 @@ func (c *ClientMock) Exists(ctx context.Context, in *wrappers.StringValue, opts 
 		return sv.(*wrappers.BoolValue), args.Error(1)
 	}
 
-	return nil, args.Error(0)
+	return nil, args.Error(1)
 }
