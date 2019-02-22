@@ -72,7 +72,7 @@ func (c *CacheServer) Put(ctx context.Context, item *cache.CacheItem) (*wrappers
 // Exists checks to see if an item already exists in the cache
 func (c *CacheServer) Exists(ctx context.Context, key *wrappers.StringValue) (*wrappers.BoolValue, error) {
 	encodedID := storage.HashFilename(key.GetValue())
-	f := c.logger.CachePut(encodedID)
+	f := c.logger.CacheExists(encodedID)
 
 	exists, err := c.store.Exists(encodedID)
 	if err != nil {
