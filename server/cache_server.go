@@ -18,6 +18,12 @@ type CacheServer struct {
 	logger logging.Logger
 }
 
+// Check returns the health status of the api
+func (c *CacheServer) Check(ctx context.Context, in *cache.HealthCheckRequest) (*cache.HealthCheckResponse, error) {
+
+	return &cache.HealthCheckResponse{Status: cache.HealthCheckResponse_SERVING}, nil
+}
+
 // Get an item from the cache
 func (c *CacheServer) Get(ctx context.Context, key *wrappers.StringValue) (*cache.CacheItem, error) {
 	f := c.logger.CacheGetFile(key.Value)

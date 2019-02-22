@@ -7,7 +7,21 @@ message CacheItem {
   bytes data = 2;
 }
 
+message HealthCheckRequest {
+  string service = 1;
+}
+
+message HealthCheckResponse {
+  enum ServingStatus {
+    UNKNOWN = 0;
+    SERVING = 1;
+    NOT_SERVING = 2;
+  }
+  ServingStatus status = 1;
+}
+
 service Cache {
+  rpc Check(HealthCheckRequest) returns (HealthCheckResponse);
   rpc Put(CacheItem) returns (google.protobuf.StringValue) {}
   rpc Get(google.protobuf.StringValue) returns (CacheItem) {}
   rpc Exists(google.protobuf.StringValue) returns (google.protobuf.BoolValue) {}

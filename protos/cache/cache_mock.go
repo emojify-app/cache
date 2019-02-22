@@ -12,6 +12,17 @@ type ClientMock struct {
 	mock.Mock
 }
 
+// Check is a mock implementation of the cache health check interface
+func (c *ClientMock) Check(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckResponse, error) {
+	args := c.Called(ctx, in, opts)
+
+	if sv := args.Get(0); sv != nil {
+		return sv.(*HealthCheckResponse), args.Error(1)
+	}
+
+	return nil, args.Error(1)
+}
+
 // Put is a mock implementation of the cache put interface
 func (c *ClientMock) Put(ctx context.Context, in *CacheItem, opts ...grpc.CallOption) (*wrappers.StringValue, error) {
 	args := c.Mock.Called(ctx, in, opts)

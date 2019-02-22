@@ -33,6 +33,7 @@ var help = flag.Bool("help", false, "--help to show help")
 
 func main() {
 	flag.Parse()
+	flag.Parsed()
 
 	// if the help flag is passed show configuration options
 	if *help == true {
@@ -59,7 +60,7 @@ func main() {
 		c = storage.NewFileStore(*envCacheFileLocation, *envCacheInvalidation)
 	}
 
-	l.Log().Info("Binding health checks to", "address", *envBindAddress, "port", *envBindPort)
+	l.Log().Info("Binding health checks to", "address", *envHealthBindAddress, "port", *envHealthBindPort)
 	l.Log().Info("Starting health server")
 
 	http.HandleFunc("/health", func(rw http.ResponseWriter, r *http.Request) {
