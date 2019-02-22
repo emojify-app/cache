@@ -26,6 +26,7 @@ var cacheClient cache.CacheClient
 var putReturn string
 var getBody string
 var existsReturn bool
+var healthReturn cache.HealthCheckResponse_ServingStatus
 
 var fileURI = "http://localhost:9191/a/b/c.jpg"
 
@@ -48,8 +49,8 @@ func TestMain(m *testing.M) {
 }
 
 func theServerIsRunning() error {
-	c := storage.NewFileStore("/tmp/cache/", 5*time.Minute)
 	l, _ := logging.New("test", "test", "localhost:8125", "DEBUG", "text")
+	c := storage.NewFileStore("/tmp/cache/", 5*time.Minute, l)
 
 	var err error
 	go func() {
@@ -131,6 +132,25 @@ func iCallExists() error {
 	return nil
 }
 
+func iCallCheck() error {
+	resp, err := cacheClient.Check(context.Background(), &cache.HealthCheckRequest{})
+	if err != nil {
+		return err
+	}
+
+	healthReturn = resp.Status
+
+	return nil
+}
+
+func theResponseShouldBeRunning() error {
+	if healthReturn != cache.HealthCheckResponse_SERVING {
+		return fmt.Errorf("Health check failed, expected response serving, got:%s", healthReturn.String())
+	}
+
+	return nil
+}
+
 func theResponseShouldBeTrue() error {
 	if !existsReturn {
 		return fmt.Errorf("Exists should have returned true")
@@ -157,4 +177,6 @@ func FeatureContext(s *godog.Suite) {
 	s.Step(`^the file contents should be returned`, theFileContentsShouldBeReturned)
 	s.Step(`^I call exists$`, iCallExists)
 	s.Step(`^the response should be true$`, theResponseShouldBeTrue)
+	s.Step(`^I call check$`, iCallCheck)
+	s.Step(`^the response should be running$`, theResponseShouldBeRunning)
 }

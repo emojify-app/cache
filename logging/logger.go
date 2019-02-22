@@ -16,9 +16,13 @@ type Logger interface {
 
 	ServiceStart(address, port, version string)
 
-	CacheFileNotFound(string)
-	CacheGetFile(string) Finished
-	CachePutFile(string) Finished
+	CacheCheck() Finished
+	CacheExists(string) Finished
+	CacheGet(string) Finished
+	CachePut(string) Finished
+
+	CacheInvalidate() Finished
+	CacheInvalidateItem(string, error)
 }
 
 // Finished defines a function to be returned by logging methods which contain timers
@@ -64,20 +68,13 @@ func (l *LoggerImpl) ServiceStart(address, port, version string) {
 	l.l.Info("Service started", "address", address, "port", port, "version", version)
 }
 
-// CacheFileNotFound logs information when the a file is missing from the cache
-func (l *LoggerImpl) CacheFileNotFound(f string) {
-	l.s.Incr(statsPrefix+"cache.file_not_found", nil, 1)
-	l.l.Info("File not found in cache", "file", f)
-}
-
-// CacheGetFile logs information when data is fetched from the cache
-func (l *LoggerImpl) CacheGetFile(f string) Finished {
+// CacheGet logs information when data is fetched from the cache
+func (l *LoggerImpl) CacheGet(f string) Finished {
 	st := time.Now()
 	l.l.Info("Fetching file from cache", "file", f)
 
 	return func(status int, err error) {
 		if err != nil {
-			l.s.Incr(statsPrefix+"cache.error", nil, 1)
 			l.l.Error("Error fetching file from cache", "file", f, "error", err)
 		}
 
@@ -85,19 +82,78 @@ func (l *LoggerImpl) CacheGetFile(f string) Finished {
 	}
 }
 
-// CachePutFile logs information when data is fetched from the cache
-func (l *LoggerImpl) CachePutFile(f string) Finished {
+// CachePut logs information when data is fetched from the cache
+func (l *LoggerImpl) CachePut(f string) Finished {
 	st := time.Now()
 	l.l.Info("Putting file to cache", "file", f)
 
 	return func(status int, err error) {
 		if err != nil {
-			l.s.Incr(statsPrefix+"cache.error", nil, 1)
-			l.l.Error("Error fetching file from cache", "file", f, "error", err)
+			l.l.Error("Error putting file to cache", "file", f, "error", err)
 		}
 
-		l.s.Timing(statsPrefix+"cache.get", time.Now().Sub(st), getStatusTags(status), 1)
+		l.s.Timing(statsPrefix+"cache.put", time.Now().Sub(st), getStatusTags(status), 1)
 	}
+}
+
+// CacheExists logs information when the cache exists method is called
+func (l *LoggerImpl) CacheExists(f string) Finished {
+	st := time.Now()
+	l.l.Info("Checking file is in cache", "file", f)
+
+	return func(status int, err error) {
+		if err != nil {
+			l.l.Error("Error checking if file in cache", "file", f, "error", err)
+		}
+
+		l.s.Timing(statsPrefix+"cache.exists", time.Now().Sub(st), getStatusTags(status), 1)
+	}
+}
+
+// CacheCheck logs information when the cache health check is called
+func (l *LoggerImpl) CacheCheck() Finished {
+	st := time.Now()
+	l.l.Info("Health check")
+
+	return func(status int, err error) {
+		if err != nil {
+			l.l.Error("Error with health check", "error", err)
+		}
+
+		l.s.Timing(statsPrefix+"cache.check", time.Now().Sub(st), getStatusTags(status), 1)
+	}
+}
+
+// CacheInvalidate logs information when the cache invalidation is called
+func (l *LoggerImpl) CacheInvalidate() Finished {
+	st := time.Now()
+	l.l.Info("Invalidate cache items")
+
+	return func(status int, err error) {
+		if err != nil {
+			l.l.Error("Error invalidating cache items", "error", err)
+		}
+
+		l.s.Timing(statsPrefix+"cache.invalidate", time.Now().Sub(st), getStatusTags(status), 1)
+	}
+}
+
+// CacheInvalidateItem logs information when the cache item is invalidated
+func (l *LoggerImpl) CacheInvalidateItem(file string, err error) {
+	if err != nil {
+		l.l.Error("Unable to invalidate cache item", "file", file, "error", err)
+		l.s.Incr(statsPrefix+"cache.invalidation.error", nil, 1.0)
+		return
+	}
+
+	l.l.Info("Remove expired file", "file", file)
+	l.s.Incr(statsPrefix+"cache.invalidated", nil, 1.0)
+}
+
+// CacheInvalidated logs the number of items invalidated from the cache
+func (l *LoggerImpl) CacheInvalidated(count float64) {
+	l.l.Info("Items invalidated from cache", "count", count)
+	l.s.Gauge(statsPrefix+"cache.invalidated", count, nil, 1.0)
 }
 
 func getStatusTags(status int) []string {

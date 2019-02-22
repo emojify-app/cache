@@ -57,7 +57,7 @@ func main() {
 
 	var c storage.Store
 	if *envCacheType == "file" {
-		c = storage.NewFileStore(*envCacheFileLocation, *envCacheInvalidation)
+		c = storage.NewFileStore(*envCacheFileLocation, *envCacheInvalidation, l)
 	}
 
 	l.Log().Info("Binding health checks to", "address", *envHealthBindAddress, "port", *envHealthBindPort)

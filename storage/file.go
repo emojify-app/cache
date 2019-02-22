@@ -3,9 +3,12 @@ package storage
 import (
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/emojify-app/cache/logging"
 )
 
 // FileStore implements the Cache interface using the local filesystem
@@ -13,10 +16,11 @@ type FileStore struct {
 	path             string
 	cacheDuration    time.Duration
 	lastInvalidation time.Time
+	logger           logging.Logger
 }
 
 // NewFileStore creates a file based cache
-func NewFileStore(path string, ci time.Duration) Store {
+func NewFileStore(path string, ci time.Duration, l logging.Logger) Store {
 	_, err := os.Open(path)
 	if err != nil {
 		err := os.MkdirAll(path, 0755)
@@ -33,6 +37,7 @@ func NewFileStore(path string, ci time.Duration) Store {
 	f := &FileStore{}
 	f.path = path
 	f.cacheDuration = ci
+	f.logger = l
 	go f.invalidateCache()
 
 	return f
@@ -49,6 +54,7 @@ func (r *FileStore) Exists(key string) (bool, error) {
 }
 
 // Get an image from the File store
+// when a file is not found data is nil
 func (r *FileStore) Get(key string) ([]byte, error) {
 	f, err := os.Open(r.path + key)
 	if err != nil {
@@ -80,17 +86,18 @@ func (r *FileStore) startInvalidateCache() {
 	t := time.NewTicker(r.cacheDuration)
 
 	for range t.C {
-		fmt.Println("Run cache invalidation")
 		r.invalidateCache()
 	}
 }
 
 func (r *FileStore) invalidateCache() {
+	f := r.logger.CacheInvalidate()
+
 	// find files which have expired
 	toDelete := make([]os.FileInfo, 0)
 	files, err := ioutil.ReadDir(r.path)
 	if err != nil {
-		fmt.Println("Error reading cache directory", err)
+		f(http.StatusInternalServerError, fmt.Errorf("Error reading cache directory %s", err))
 		return
 	}
 
@@ -102,10 +109,9 @@ func (r *FileStore) invalidateCache() {
 
 	// clean up expired files
 	for _, f := range toDelete {
-		fmt.Println("Remove expired file", f.Name())
 		err := os.Remove(r.path + f.Name())
-		if err != nil {
-			fmt.Println("Unabled to delete cached file", err)
-		}
+		r.logger.CacheInvalidateItem(f.Name(), err)
 	}
+
+	f(http.StatusOK, nil)
 }

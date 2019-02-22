@@ -26,7 +26,7 @@ func (c *CacheServer) Check(ctx context.Context, in *cache.HealthCheckRequest) (
 
 // Get an item from the cache
 func (c *CacheServer) Get(ctx context.Context, key *wrappers.StringValue) (*cache.CacheItem, error) {
-	f := c.logger.CacheGetFile(key.Value)
+	f := c.logger.CacheGet(key.Value)
 
 	encodedID := storage.HashFilename(key.Value)
 
@@ -41,7 +41,7 @@ func (c *CacheServer) Get(ctx context.Context, key *wrappers.StringValue) (*cach
 
 	// does the file exist?
 	if data == nil || len(data) == 0 {
-		c.logger.CacheFileNotFound(key.Value)
+		f(http.StatusNotFound, nil)
 
 		gerr := status.New(codes.NotFound, "File not found: "+key.Value)
 		return nil, gerr.Err()
@@ -53,7 +53,7 @@ func (c *CacheServer) Get(ctx context.Context, key *wrappers.StringValue) (*cach
 
 // Put an item in the cache
 func (c *CacheServer) Put(ctx context.Context, item *cache.CacheItem) (*wrappers.StringValue, error) {
-	f := c.logger.CachePutFile(item.GetId())
+	f := c.logger.CachePut(item.GetId())
 
 	encodedID := storage.HashFilename(item.GetId())
 
@@ -72,11 +72,21 @@ func (c *CacheServer) Put(ctx context.Context, item *cache.CacheItem) (*wrappers
 // Exists checks to see if an item already exists in the cache
 func (c *CacheServer) Exists(ctx context.Context, key *wrappers.StringValue) (*wrappers.BoolValue, error) {
 	encodedID := storage.HashFilename(key.GetValue())
+	f := c.logger.CachePut(encodedID)
 
 	exists, err := c.store.Exists(encodedID)
 	if err != nil {
+		f(http.StatusInternalServerError, err)
+
 		gerr := status.New(codes.Internal, err.Error())
 		return nil, gerr.Err()
+	}
+
+	switch exists {
+	case true:
+		f(http.StatusFound, nil)
+	case false:
+		f(http.StatusNotFound, nil)
 	}
 
 	return &wrappers.BoolValue{Value: exists}, nil

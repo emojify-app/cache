@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/emojify-app/cache/logging"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,7 +14,8 @@ var tmpDirectory = "/tmp/cache_test"
 
 func setupFileStore(invalidation time.Duration) Store {
 	os.Mkdir(tmpDirectory, 0755)
-	return NewFileStore(tmpDirectory, invalidation)
+	l, _ := logging.New("test", "test", "localhost:8125", "DEBUG", "text")
+	return NewFileStore(tmpDirectory, invalidation, l)
 }
 
 func TestPutSavesFile(t *testing.T) {
