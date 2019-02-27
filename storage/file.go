@@ -38,7 +38,7 @@ func NewFileStore(path string, ci time.Duration, l logging.Logger) Store {
 	f.path = path
 	f.cacheDuration = ci
 	f.logger = l
-	go f.invalidateCache()
+	go f.startInvalidateCache()
 
 	return f
 }
@@ -102,7 +102,7 @@ func (r *FileStore) invalidateCache() {
 	}
 
 	for _, f := range files {
-		if f.ModTime().Sub(r.lastInvalidation) > r.cacheDuration {
+		if f.ModTime().Sub(r.lastInvalidation) < r.cacheDuration {
 			toDelete = append(toDelete, f)
 		}
 	}
