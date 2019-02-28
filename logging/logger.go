@@ -150,12 +150,6 @@ func (l *LoggerImpl) CacheInvalidateItem(file string, err error) {
 	l.s.Incr(statsPrefix+"cache.invalidated", nil, 1.0)
 }
 
-// CacheInvalidated logs the number of items invalidated from the cache
-func (l *LoggerImpl) CacheInvalidated(count float64) {
-	l.l.Info("Items invalidated from cache", "count", count)
-	l.s.Gauge(statsPrefix+"cache.invalidated", count, nil, 1.0)
-}
-
 func getStatusTags(status int) []string {
 	return []string{
 		fmt.Sprintf("status:%d", status),

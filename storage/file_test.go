@@ -54,14 +54,14 @@ func TestExistsWithNoFileReturnsFalse(t *testing.T) {
 }
 
 func TestRemovesCachedFile(t *testing.T) {
-	c := setupFileStore(10 * time.Millisecond)
+	c := setupFileStore(20 * time.Millisecond)
 
 	c.Put("abc", []byte("abc1223"))
 	fileKey := "abc"
 
 	st := time.Now()
 	for {
-		if time.Now().Sub(st) > 100*time.Millisecond {
+		if time.Now().Sub(st) > 1000*time.Millisecond {
 			t.Fatal("Timeout before cache invalidation")
 		}
 
@@ -80,7 +80,7 @@ func TestDoesNotRemoveCachedFile(t *testing.T) {
 	fileKey := "abc"
 	filePath := tmpDirectory + "/" + fileKey
 
-	time.Sleep(300 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 
 	_, err := os.Open(filePath)
 	ex := os.IsNotExist(err)
