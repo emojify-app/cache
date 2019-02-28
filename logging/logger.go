@@ -71,7 +71,7 @@ func (l *LoggerImpl) ServiceStart(address, port, version string) {
 // CacheGet logs information when data is fetched from the cache
 func (l *LoggerImpl) CacheGet(f string) Finished {
 	st := time.Now()
-	l.l.Info("Fetching file from cache", "file", f)
+	l.l.Debug("Fetching file from cache", "file", f)
 
 	return func(status int, err error) {
 		if err != nil {
@@ -85,7 +85,7 @@ func (l *LoggerImpl) CacheGet(f string) Finished {
 // CachePut logs information when data is fetched from the cache
 func (l *LoggerImpl) CachePut(f string) Finished {
 	st := time.Now()
-	l.l.Info("Putting file to cache", "file", f)
+	l.l.Debug("Putting file to cache", "file", f)
 
 	return func(status int, err error) {
 		if err != nil {
@@ -99,7 +99,7 @@ func (l *LoggerImpl) CachePut(f string) Finished {
 // CacheExists logs information when the cache exists method is called
 func (l *LoggerImpl) CacheExists(f string) Finished {
 	st := time.Now()
-	l.l.Info("Checking file is in cache", "file", f)
+	l.l.Debug("Checking file is in cache", "file", f)
 
 	return func(status int, err error) {
 		if err != nil {
@@ -113,7 +113,7 @@ func (l *LoggerImpl) CacheExists(f string) Finished {
 // CacheCheck logs information when the cache health check is called
 func (l *LoggerImpl) CacheCheck() Finished {
 	st := time.Now()
-	l.l.Info("Health check")
+	l.l.Debug("Health check")
 
 	return func(status int, err error) {
 		if err != nil {

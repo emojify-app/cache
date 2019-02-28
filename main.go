@@ -25,6 +25,8 @@ var envCacheInvalidation = env.Duration("CACHE_INVALIDATION", false, "5m", "Cach
 
 var statsDAddress = env.String("STATSD_ADDRESS", false, "localhost:8125", "Address for stats d server")
 
+var logLevel = env.String("LOG_LEVEL", false, "info", "Level for log output [info,debug,trace,error]")
+
 var logger hclog.Logger
 
 var version = "dev"
@@ -49,7 +51,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	l, err := logging.New("cache", version, *statsDAddress, "INFO", "text")
+	l, err := logging.New("cache", version, *statsDAddress, *logLevel, "text")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
