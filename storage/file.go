@@ -13,14 +13,18 @@ import (
 
 // FileStore implements the Cache interface using the local filesystem
 type FileStore struct {
-	path             string
-	cacheDuration    time.Duration
-	lastInvalidation time.Time
-	logger           logging.Logger
+	path              string
+	maxLife           time.Duration
+	invalidationCheck time.Duration
+	logger            logging.Logger
 }
 
 // NewFileStore creates a file based cache
-func NewFileStore(path string, ci time.Duration, l logging.Logger) Store {
+// path = cache file path
+// maxLife = max duration a file can exist in the cache
+// ci = duration to check the cache for items to invalidate
+// l = logging.Logger
+func NewFileStore(path string, maxLife time.Duration, ic time.Duration, l logging.Logger) Store {
 	_, err := os.Open(path)
 	if err != nil {
 		err := os.MkdirAll(path, 0755)
@@ -36,8 +40,10 @@ func NewFileStore(path string, ci time.Duration, l logging.Logger) Store {
 
 	f := &FileStore{}
 	f.path = path
-	f.cacheDuration = ci
+	f.maxLife = maxLife
 	f.logger = l
+	f.invalidationCheck = ic
+
 	go f.startInvalidateCache()
 
 	return f
@@ -82,8 +88,7 @@ func (r *FileStore) Put(key string, data []byte) error {
 }
 
 func (r *FileStore) startInvalidateCache() {
-	r.lastInvalidation = time.Now()
-	t := time.NewTicker(r.cacheDuration)
+	t := time.NewTicker(r.invalidationCheck)
 
 	for range t.C {
 		r.invalidateCache()
@@ -93,24 +98,18 @@ func (r *FileStore) startInvalidateCache() {
 func (r *FileStore) invalidateCache() {
 	f := r.logger.CacheInvalidate()
 
-	// find files which have expired
-	toDelete := make([]os.FileInfo, 0)
 	files, err := ioutil.ReadDir(r.path)
 	if err != nil {
 		f(http.StatusInternalServerError, fmt.Errorf("Error reading cache directory %s", err))
 		return
 	}
 
+	// find files which have expired
 	for _, f := range files {
-		if f.ModTime().Sub(r.lastInvalidation) < r.cacheDuration {
-			toDelete = append(toDelete, f)
+		if cd := time.Now().Sub(f.ModTime()); cd > r.maxLife {
+			err := os.Remove(r.path + f.Name())
+			r.logger.CacheInvalidateItem(f.Name(), cd, err)
 		}
-	}
-
-	// clean up expired files
-	for _, f := range toDelete {
-		err := os.Remove(r.path + f.Name())
-		r.logger.CacheInvalidateItem(f.Name(), err)
 	}
 
 	f(http.StatusOK, nil)

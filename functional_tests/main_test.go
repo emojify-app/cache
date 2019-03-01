@@ -50,7 +50,7 @@ func TestMain(m *testing.M) {
 
 func theServerIsRunning() error {
 	l, _ := logging.New("test", "test", "localhost:8125", "DEBUG", "text")
-	c := storage.NewFileStore("/tmp/cache/", 5*time.Minute, l)
+	c := storage.NewFileStore("/tmp/cache/", 5*time.Minute, 1*time.Second, l)
 
 	var err error
 	go func() {

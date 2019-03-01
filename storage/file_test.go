@@ -12,10 +12,10 @@ import (
 
 var tmpDirectory = "/tmp/cache_test"
 
-func setupFileStore(invalidation time.Duration) Store {
+func setupFileStore(maxLife time.Duration) Store {
 	os.Mkdir(tmpDirectory, 0755)
 	l, _ := logging.New("test", "test", "localhost:8125", "DEBUG", "text")
-	return NewFileStore(tmpDirectory, invalidation, l)
+	return NewFileStore(tmpDirectory, maxLife, 5*time.Millisecond, l)
 }
 
 func TestPutSavesFile(t *testing.T) {
@@ -80,7 +80,7 @@ func TestDoesNotRemoveCachedFile(t *testing.T) {
 	fileKey := "abc"
 	filePath := tmpDirectory + "/" + fileKey
 
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(20 * time.Millisecond)
 
 	_, err := os.Open(filePath)
 	ex := os.IsNotExist(err)

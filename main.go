@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/emojify-app/cache/logging"
 	"github.com/emojify-app/cache/server"
@@ -21,7 +22,7 @@ var envHealthBindPort = env.Integer("HEALTH_BIND_PORT", false, 9091, "Bind port 
 
 var envCacheType = env.String("CACHE_TYPE", false, "file", "Cache type for server e.g. file, cloud_storage")
 var envCacheFileLocation = env.String("CACHE_FILE_LOCATION", false, "/files", "Directory to store files for cache type file")
-var envCacheInvalidation = env.Duration("CACHE_INVALIDATION", false, "5m", "Cache invalidation period")
+var envCacheMaxLife = env.Duration("CACHE_MAX_LIFE", false, "5m", "Max period a file can exist in the cache")
 
 var statsDAddress = env.String("STATSD_ADDRESS", false, "localhost:8125", "Address for stats d server")
 
@@ -59,7 +60,7 @@ func main() {
 
 	var c storage.Store
 	if *envCacheType == "file" {
-		c = storage.NewFileStore(*envCacheFileLocation, *envCacheInvalidation, l)
+		c = storage.NewFileStore(*envCacheFileLocation, *envCacheMaxLife, 5*time.Second, l)
 	}
 
 	l.Log().Info("Binding health checks to", "address", *envHealthBindAddress, "port", *envHealthBindPort)
