@@ -80,7 +80,7 @@ func TestDoesNotRemoveCachedFile(t *testing.T) {
 	fileKey := "abc"
 	filePath := tmpDirectory + "/" + fileKey
 
-	time.Sleep(20 * time.Millisecond)
+	time.Sleep(10 * time.Millisecond)
 
 	_, err := os.Open(filePath)
 	ex := os.IsNotExist(err)
