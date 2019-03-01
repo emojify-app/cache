@@ -22,14 +22,14 @@ type Logger interface {
 	CachePut(string) Finished
 
 	CacheInvalidate() Finished
-	CacheInvalidateItem(string, time.Duration, error)
+	CacheInvalidateItem(string, time.Duration, time.Duration, error)
 }
 
 // Finished defines a function to be returned by logging methods which contain timers
 type Finished func(status int, err error)
 
 // New creates a new logger with the given name and points it at a statsd server
-func New(name, version, statsDServer, logLevel string, logFormat string) (Logger, error) {
+func New(name, version, statsDServer, logLevel, logFormat string) (Logger, error) {
 	o := hclog.DefaultOptions
 	o.Name = name
 
@@ -139,14 +139,14 @@ func (l *LoggerImpl) CacheInvalidate() Finished {
 }
 
 // CacheInvalidateItem logs information when the cache item is invalidated
-func (l *LoggerImpl) CacheInvalidateItem(file string, life time.Duration, err error) {
+func (l *LoggerImpl) CacheInvalidateItem(file string, maxLife, life time.Duration, err error) {
 	if err != nil {
 		l.l.Error("Unable to invalidate cache item", "file", file, "error", err)
 		l.s.Incr(statsPrefix+"cache.invalidation.error", nil, 1.0)
 		return
 	}
 
-	l.l.Info("Remove expired file", "file", file, "life_span", life)
+	l.l.Info("Remove expired file", "file", file, "max_life", maxLife, "life_span", life)
 	l.s.Incr(statsPrefix+"cache.invalidated", nil, 1.0)
 }
 

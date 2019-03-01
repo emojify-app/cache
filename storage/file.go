@@ -108,7 +108,7 @@ func (r *FileStore) invalidateCache() {
 	for _, f := range files {
 		if cd := time.Now().Sub(f.ModTime()); cd > r.maxLife {
 			err := os.Remove(r.path + f.Name())
-			r.logger.CacheInvalidateItem(f.Name(), cd, err)
+			r.logger.CacheInvalidateItem(f.Name(), r.maxLife, cd, err)
 		}
 	}
 

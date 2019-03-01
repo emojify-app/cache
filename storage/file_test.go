@@ -14,7 +14,7 @@ var tmpDirectory = "/tmp/cache_test"
 
 func setupFileStore(maxLife time.Duration) Store {
 	os.Mkdir(tmpDirectory, 0755)
-	l, _ := logging.New("test", "test", "localhost:8125", "DEBUG", "text")
+	l, _ := logging.New("test", "test", "localhost:8125", "debug", "text")
 	return NewFileStore(tmpDirectory, maxLife, 5*time.Millisecond, l)
 }
 
