@@ -127,7 +127,7 @@ func (l *LoggerImpl) CacheCheck() Finished {
 // CacheInvalidate logs information when the cache invalidation is called
 func (l *LoggerImpl) CacheInvalidate() Finished {
 	st := time.Now()
-	l.l.Info("Invalidate cache items")
+	l.l.Debug("Invalidate cache items")
 
 	return func(status int, err error) {
 		if err != nil {
